@@ -34,16 +34,16 @@ decode_results results;// variable results stores the decoded hex values
 /*
  ************HEX code of all the buttons used in the project**************
  */
-#define FWD       0x38863BD0 // go forward(2) 
-#define LFT       0x38863BC8 // go left(4) 
-#define RGT       0x38863BD8 // go right(6) 
-#define BWD       0x38863BC4 // go backward(8) 
-#define STOP      0x38863BE8 // stop(5) 0xFD30CF
-#define RPEAT     0x38863BC0// repeat the stored sequence of movement from the temporary memory(automatically stores) (0)  
-#define DEL       0x38863BD2// delete the stored sequence of movement from temporary memory(power)  
-#define PERST     0x38863BF6 // copy the sequence from temp. memory to the permanent memory(display) 
-#define PLAYEPROM 0x38863BDC // repeat the sequence stored in memory(Menu) 
-#define RESET     0x38863BDA// Resets the Arduino Board(mute)  
+#define FWD       0x117DD // go forward(2) 
+#define LFT       0x197CD // go left(4) 
+#define RGT       0x157D5 // go right(6) 
+#define BWD       0x1D7C5 // go backward(8) 
+#define STOP      0x57F5 // stop(5) 0xFD30CF
+#define RPEAT     0x137D9// repeat the stored sequence of movement from the temporary memory(automatically stores) (0)  
+#define DEL       0x17FD// delete the stored sequence of movement from temporary memory(1)  
+#define PERST     0x97ED // copy the sequence from temp. memory to the permanent memory(3) 
+#define PLAYEPROM 0xD7E5 // repeat the sequence stored in memory(7) 
+#define RESET     0x37F9// Resets the Arduino Board(9)  
 
 /*
  ************Global Variables and Arrays**************
@@ -93,8 +93,7 @@ void setup() {
   
   // start serial communication
   Serial.begin(9600);
-  // In case the interrupt driver crashes on setup, give a clue
-  // to the user what's going on.
+  // In case the interrupt driver crashes on setup, give a clue to the user what's going on.
   //Serial.println("Enabling IRin");
   irrecv.enableIRIn(); // Start the receiver
   //Serial.println("Enabled IRin");
@@ -102,7 +101,7 @@ void setup() {
 }
 
 void loop() {
-
+  //Speed Control
   analogWrite(enA, 232);
   analogWrite(enB, 251);
   if (irrecv.decode(&results)) {
@@ -170,7 +169,6 @@ void check_Inst(long int value) {
 
 void go_Forward() {
   movement_Inst_Fwd();
-
   current_Time0 = millis();
   int i = seq_Array[(seq - 1)];
   switch (i) {
@@ -181,7 +179,7 @@ void go_Forward() {
       break;
 
     case 3:
-      // total time elaspsed since Right button is pressed including rest time 
+      // total time elapsed since Right button is pressed including rest time 
       total_Rgt_Time[rgt_Counter + 1] = (current_Time0 - current_Time2);
       rgt_Counter++;
       break;
@@ -443,7 +441,7 @@ void write_To_Permt_Mem(){
 void Read_Permt_Mem(){
   // Read from permanent memory
   byte x = EEPROM.read(100);
-  Serial.println("Rep"); 
+  Serial.println("Repeating stored sequence from memory"); 
 
    for(int i=0; i<x+1; i++){
     byte r = EEPROM.read(2*i);
