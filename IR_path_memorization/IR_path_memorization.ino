@@ -81,7 +81,6 @@ const int RESET_PIN = A0;
 
  
 void setup() {
-
   // set mode of the pins as output
   pinMode(LM_IN1, OUTPUT);
   pinMode(LM_IN2, OUTPUT);
@@ -103,12 +102,13 @@ void setup() {
 void loop() {
   //Speed Control
   analogWrite(enA, 232);
-  analogWrite(enB, 251);
+  analogWrite(enB, 221);
   if (irrecv.decode(&results)) {
     value = results.value;
     Serial.println(value, HEX);
+    delay(100);
     irrecv.resume(); // Receive the next value
-    delay(200);
+    delay(100);
   }
 
   delay(100);
@@ -118,7 +118,6 @@ void loop() {
 }
 
 void check_Inst(long int value) {
-
   switch (value) {
     case FWD:
       go_Forward();
