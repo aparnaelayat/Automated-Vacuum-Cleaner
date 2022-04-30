@@ -1,31 +1,31 @@
 #include <IRremote.h>// IR remote library
 #include <EEPROM.h>// EEPROM pre-installed library
 
-//Pin 9 of mega does not work
+//Pin 9 of mega does not work. Use pin 12 instead. 
 /*
    ***********Left Motor***********
 */
 
 // IN 1
-const int LM_IN1 =  8;
+const int LM_IN1 =  8; //to pin 2 of L293D (IN 1)
 // IN 2
-const int LM_IN2 =  7;
+const int LM_IN2 =  7; //to pin 7 of L293D (IN 2)
 /*
    ************Right Motor************
 */
 // IN 3
-const int RM_IN3 = 5;
+const int RM_IN3 = 5; //to pin 10 of L293D (IN 3)
 // IN 4
-const int RM_IN4 = 4;
+const int RM_IN4 = 4; //to pin 15 of L293D (IN 4)
 /*
    ************Enables************
 */
-const int enA = 12; //Right motor 
-const int enB = 3; //Left motor (looking from the back, the projected thingy)
+const int enA = 12; //Right motor (looking from the back, the projected thingy), to pin 1 of L293D (EN A) 
+const int enB = 3; //Left motor, to pin 9 of L293D (EN B)
 /*
    ********************IR Receiver**********************
 */
-const int RECV_PIN = 10;// Pin to which IR reciever is connected
+const int RECV_PIN = 10;// Pin to which left pin (pin 1) of IR reciever is connected. Ground of IR is the central pin and the Vcc (5V) is the right pin. 
 
 IRrecv irrecv(RECV_PIN);// Pass the pin number to the function
 
