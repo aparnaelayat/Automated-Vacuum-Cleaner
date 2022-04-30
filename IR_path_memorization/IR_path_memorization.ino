@@ -20,8 +20,8 @@ const int RM_IN4 = 4;
 /*
    ************Enables************
 */
-const int enA = 12;
-const int enB = 3;
+const int enA = 12; //Right motor 
+const int enB = 3; //Left motor (looking from the back, the projected thingy)
 /*
    ********************IR Receiver**********************
 */
@@ -41,9 +41,9 @@ decode_results results;// variable results stores the decoded hex values
 #define STOP      0x57F5 // stop(5) 0xFD30CF
 #define RPEAT     0x137D9// repeat the stored sequence of movement from the temporary memory(automatically stores) (0)  
 #define DEL       0x17FD// delete the stored sequence of movement from temporary memory(1)  
-#define PERST     0x97ED // copy the sequence from temp. memory to the permanent memory(3) 
+#define PERST     0x97ED // save from temp. memory to the permanent memory(3) 
 #define PLAYEPROM 0xD7E5 // repeat the sequence stored in memory(7) 
-#define RESET     0x37F9// Resets the Arduino Board(9)  
+#define RESET     0x37F9// resets the Arduino Board(9)  
 
 /*
  ************Global Variables and Arrays**************
@@ -101,8 +101,8 @@ void setup() {
 
 void loop() {
   //Speed Control
-  analogWrite(enA, 232);
-  analogWrite(enB, 221);
+  analogWrite(enA, 243);//Right motor
+  analogWrite(enB, 220);//Left motor
   if (irrecv.decode(&results)) {
     value = results.value;
     Serial.println(value, HEX);
@@ -518,12 +518,12 @@ void movement_Inst_Lft(void) {
   digitalWrite(LM_IN2, LOW);
   digitalWrite(RM_IN3, HIGH);
   digitalWrite(RM_IN4, LOW);
-  delay(500);// default delay for smooth rotation.
+  delay(800);// default delay for smooth rotation of about 23 degrees is 500.
   digitalWrite(LM_IN1, LOW);
   digitalWrite(LM_IN2, LOW);
   digitalWrite(RM_IN3, LOW);
   digitalWrite(RM_IN4, LOW);
-  delay(500);
+  delay(800);
   // NOTE: The minimum delay for RIGHT/LEFT movement is 1S(inluding .5s ON time & .5s OFF time). Hence subtract 1s before repeating this movement
 }
 
@@ -534,12 +534,12 @@ void movement_Inst_Rgt(void) {
   digitalWrite(LM_IN2, LOW);
   digitalWrite(RM_IN3, LOW);
   digitalWrite(RM_IN4, LOW);
-  delay(500);// default delay for smooth rotation.
+  delay(825);// default delay for smooth rotation of about 45 degrees is 825.
   digitalWrite(LM_IN1, LOW);
   digitalWrite(LM_IN2, LOW);
   digitalWrite(RM_IN3, LOW);
   digitalWrite(RM_IN4, LOW);
-  delay(500);
+  delay(825);
   // NOTE: The minimum delay for RIGHT/LEFT movement is 1S(inluding .5s ON time & .5s OFF time). Hence subtract 1s before repeating this movement 
 
 }
