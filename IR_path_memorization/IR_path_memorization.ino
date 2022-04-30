@@ -396,14 +396,14 @@ void write_To_Permt_Mem(){
   // total number of movement is stored in a random address i.e, 100
   Serial.println("Saving Path");
   EEPROM.write(100,seq);
-    
+    int i;
   //writing the movement sequence
-  for(int i=0; i<seq; i++){ 
+  for(i=0; i<seq; i++){ 
   EEPROM.write(2*i,seq_Array[i]);
   }
 
   //storing the time bw two successive movements
-  for(int i=1; i<seq+1; i++){           
+  for(i=1; i<seq+1; i++){           
   if(seq_Array[i-1]==1){
     static byte a=0;
     EEPROM.write(2*i-1,(total_Fwd_Time[a])/1000);// Note: One location can store maximum value of 255, hence the time is divided by 1000 here. And then multiplied by 1000 while retreiving the data from EEPROM location
@@ -429,7 +429,8 @@ void write_To_Permt_Mem(){
     EEPROM.write(2*i-1,(total_Stp_Time[e])/1000);  
     e++;
     }             
-  }
+  }EEPROM.write(2*i-2,5);
+  EEPROM.write(2*i-1,1);
  } 
 
  
