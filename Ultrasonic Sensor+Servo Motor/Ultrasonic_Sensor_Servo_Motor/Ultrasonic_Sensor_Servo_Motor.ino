@@ -61,28 +61,28 @@ void setup()
 
 void loop()
 {
-  distance_1= check_dist(); //Checking Front
+  distance_1= check_dist(); //Checking Front Sensor
   if ( distance_1 < 20 )
   {
     distance_2= check_dist();
-    if ( distance_2 < 20 ) //Checking Right
+    if ( distance_2 < 20 ) //Checking Right Sensor
     {
           distance_3= check_dist();
-          if ( distance_3 < 20 )// Checking Left
+          if ( distance_3 < 20 )// Checking Left Sensor
           {
                     distance_4= check_dist();
-                    if ( distance_4 < 20 )// Checking Backward
+                    if ( distance_4 < 20 )// Checking Back Sensor
                     {
                         digitalWrite(buzz , HIGH); // Alerts user that the vacuum is stuck
                         delay(1000);
                         digitalWrite(buzz , LOW);
                     }
-                    else
+                    else // Go Back
                     {
                       distance_2= check_dist();
                       distance_3= check_dist();
                       while(distance_2 < 20 && distance_3 < 20)
-                      movement_Inst_Bwd();
+                        movement_Inst_Bwd();
 
                       if (distance_2 > 20 )
                       {
@@ -93,9 +93,9 @@ void loop()
                           movement_Inst_Fwd();//Find this duration and use for the last forward to get back to path    
                           distance_3= check_dist(); // Checking Left where the initial obstacle is
                         }while(distance_3 < 20);
-                              
+                        CurrentTime = millis();                             
                         movement_Inst_Lft();
-                        CurrentTime = millis();
+
                         ElapsedTime = CurrentTime - StartTime;
                               
                         do
@@ -124,8 +124,9 @@ void loop()
                           distance_2= check_dist(); // Checking Left where the initial obstacle is
                         }
                         while(distance_2 < 20);
-                        movement_Inst_Rgt();
                         CurrentTime = millis();
+                        movement_Inst_Rgt();
+
                         ElapsedTime = CurrentTime - StartTime;
                         do
                         {
@@ -147,7 +148,7 @@ void loop()
                      
                     }
           }
-          else
+          else //go left
           {
             movement_Inst_Lft();
             StartTime = millis();
@@ -157,8 +158,9 @@ void loop()
               distance_2= check_dist(); // Checking Left where the initial obstacle is
             }
             while(distance_2 < 20);
-            movement_Inst_Rgt();
             CurrentTime = millis();
+            movement_Inst_Rgt();
+
             ElapsedTime = CurrentTime - StartTime;
             do
             {
@@ -188,8 +190,8 @@ void loop()
         distance_3= check_dist(); // Checking Left where the initial obstacle is
       }while(distance_3 < 20);
       
-      movement_Inst_Lft();
       CurrentTime = millis();
+      movement_Inst_Lft();
       ElapsedTime = CurrentTime - StartTime;
       
       do
