@@ -1,13 +1,11 @@
-#include <Servo.h>
-
-const int trig_1 = 14;
-const int echo_1 = 15;
-const int trig_2 = 16;
-const int echo_2 = 17;
-const int trig_3 = 18;
-const int echo_3 = 19;
-const int trig_4 = 20;
-const int echo_4 = 21;
+const int trig_1 = 0; //front
+const int echo_1 = 1; //front
+const int trig_2 = 15; //right when looking from the back
+const int echo_2 = 14; //right
+const int trig_3 = 19; //left
+const int echo_3 = 18; //left
+const int trig_4 = 17; //back
+const int echo_4 = 16; //back
 
 const int buzz = 6;
 unsigned long CurrentTime;
@@ -15,23 +13,19 @@ unsigned long ElapsedTime;
 unsigned long StartTime;
 
 const int LM_IN1 = 8; //IN 1
-const int LM_IN2 = 7; //IN2
+const int LM_IN2 = 7; //IN 2
 const int RM_IN3 = 5; //IN 3
 const int RM_IN4 = 4; //IN 4
 
-int duration_1 = 0;
-int duration_2 = 0;
-int duration_3 = 0;
-int duration_4 = 0;
-
-int distance_1 = 0;
-int distance_2 = 0;
-int distance_3 = 0;
-int distance_4 = 0;
+double distance_1 = 0;
+double distance_2 = 0;
+double distance_3 = 0;
+double distance_4 = 0;
 
 int pos = 0;
 
-int check_dist();
+double check_dist(int trig, int echo);
+
 void movement_Inst_Fwd();
 void movement_Inst_Rgt();
 void movement_Inst_Bwd();
@@ -40,6 +34,7 @@ void movement_Inst_Stp();
 
 int curr1;
 int reqTime;
+
 void setup() 
 {
   pinMode(trig_1 , OUTPUT);
@@ -61,26 +56,38 @@ void setup()
 
 void loop()
 {
-  distance_1= check_dist(); //Checking Front
+  distance_1= check_dist(trig_1,echo_1); //Checking Front
+  Serial.print("distance_3:");
+  Serial.println(distance_3);
   if ( distance_1 < 20 )
   {
-    distance_2= check_dist();
+    Serial.println("front blocked");
+    distance_2= check_dist(trig_2,echo_2);
+    Serial.print("distance_3:");
+    Serial.println(distance_3);
     if ( distance_2 < 20 ) //Checking Right
     {
-          distance_3= check_dist();
+          Serial.println("right blocked");
+          distance_3= check_dist(trig_2,echo_2);
+          Serial.print("distance_3:");
+          Serial.println(distance_3);
           if ( distance_3 < 20 )// Checking Left
           {
-                    distance_4= check_dist();
+                    Serial.println("left blocked");
+                    distance_4= check_dist(trig_4,echo_4);
+                    Serial.print("distance_4:");
+                    Serial.println(distance_4);
                     if ( distance_4 < 20 )// Checking Backward
                     {
+                        Serial.println("completely blocked");
                         digitalWrite(buzz , HIGH); // Alerts user that the vacuum is stuck
                         delay(1000);
                         digitalWrite(buzz , LOW);
                     }
                     else
                     {
-                      distance_2= check_dist();
-                      distance_3= check_dist();
+                      distance_2= check_dist(trig_2,echo_2);
+                      distance_3= check_dist(trig_3,echo_3);
                       while(distance_2 < 20 && distance_3 < 20)
                       movement_Inst_Bwd();
 
@@ -91,7 +98,7 @@ void loop()
                         do
                         {
                           movement_Inst_Fwd();//Find this duration and use for the last forward to get back to path    
-                          distance_3= check_dist(); // Checking Left where the initial obstacle is
+                          distance_3= check_dist(trig_3,echo_3); // Checking Left where the initial obstacle is
                         }while(distance_3 < 20);
                               
                         movement_Inst_Lft();
@@ -101,7 +108,7 @@ void loop()
                         do
                         {
                           movement_Inst_Fwd();
-                          distance_3= check_dist(); // Checking Left where the initial obstacle is
+                          distance_3= check_dist(trig_3,echo_3); // Checking Left where the initial obstacle is
                           }while(distance_3 < 20);
                               
                           movement_Inst_Lft();
@@ -121,7 +128,7 @@ void loop()
                         do
                         {
                           movement_Inst_Fwd();//Find this duration and use for the last forward to get back to path    
-                          distance_2= check_dist(); // Checking Left where the initial obstacle is
+                          distance_2= check_dist(trig_2,echo_2); // Checking Left where the initial obstacle is
                         }
                         while(distance_2 < 20);
                         movement_Inst_Rgt();
@@ -130,7 +137,7 @@ void loop()
                         do
                         {
                           movement_Inst_Fwd();
-                          distance_2= check_dist(); // Checking Left where the initial obstacle is
+                          distance_2= check_dist(trig_2,echo_2); // Checking Left where the initial obstacle is
                         }
                         while(distance_2 < 20);
                         movement_Inst_Rgt();
@@ -154,7 +161,7 @@ void loop()
             do
             {
               movement_Inst_Fwd();//Find this duration and use for the last forward to get back to path    
-              distance_2= check_dist(); // Checking Left where the initial obstacle is
+              distance_2= check_dist(trig_2,echo_2); // Checking Left where the initial obstacle is
             }
             while(distance_2 < 20);
             movement_Inst_Rgt();
@@ -163,7 +170,7 @@ void loop()
             do
             {
               movement_Inst_Fwd();
-              distance_2= check_dist(); // Checking Left where the initial obstacle is
+              distance_2= check_dist(trig_2,echo_2); // Checking Left where the initial obstacle is
             }
             while(distance_2 < 20);
             movement_Inst_Rgt();
@@ -185,7 +192,7 @@ void loop()
       do
       {
         movement_Inst_Fwd();//Find this duration and use for the last forward to get back to path    
-        distance_3= check_dist(); // Checking Left where the initial obstacle is
+        distance_3= check_dist(trig_3,echo_3); // Checking Left where the initial obstacle is
       }while(distance_3 < 20);
       
       movement_Inst_Lft();
@@ -195,7 +202,7 @@ void loop()
       do
       {
         movement_Inst_Fwd();
-        distance_3= check_dist(); // Checking Left where the initial obstacle is
+        distance_3= check_dist(trig_3,echo_3); // Checking Left where the initial obstacle is
       }while(distance_3 < 20);
       
       movement_Inst_Lft();
@@ -216,15 +223,15 @@ else                    // Go forward
       movement_Inst_Fwd();
 }
 
-int check_dist()
+double check_dist(int trig,int echo)
 {
-  digitalWrite(trig_1 , HIGH);
+  digitalWrite(trig , HIGH);
   delayMicroseconds(1000);
-  digitalWrite(trig_1 , LOW);
+  digitalWrite(trig , LOW);
 
-  duration_1 = pulseIn(echo_1 , HIGH);
-  distance_1 = (duration_1/2) / 28.5 ;
-  Serial.println(distance_1);
+  double duration = pulseIn(echo , HIGH);
+  double distance = (duration/2) / 28.5 ;
+  return distance;
 }
 
 void movement_Inst_Fwd() {
