@@ -7,7 +7,7 @@ L293D DRIVER IC CONNECTIONS
 5 - GND
 6 - Output 2 - Motor
 7 - Input 2 - Arduino 7
-8 - Battery +ve
+8 - Vcc 2 - Battery +ve
 9 - Enable 3&4 - Arduino 3
 10 - Input 3 - Arduino 5
 11 - Output 3 - Motor
@@ -15,4 +15,11 @@ L293D DRIVER IC CONNECTIONS
 13 - GND
 14 - Output 4 - Motor
 15 - Input 4 - Arduino 4
-16 - Arduino 5V
+16 - Vcc 1 - Arduino 5V
+
+
+IR RECEIVER CONNECTIONS
+(From left-to-right while viewing the bulge)
+1 - Out - Arduino 10
+2 - GND
+3 - Arduino 5V
