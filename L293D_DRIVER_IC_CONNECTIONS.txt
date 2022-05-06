@@ -1,0 +1,18 @@
+L293D DRIVER IC CONNECTIONS
+
+1 - Enable 1&2 - Arduino 12 
+2 - Input 1 - Arduino 8
+3 - Output 1 - Motor
+4 - GND
+5 - GND
+6 - Output 2 - Motor
+7 - Input 2 - Arduino 7
+8 - Battery +ve
+9 - Enable 3&4 - Arduino 3
+10 - Input 3 - Arduino 5
+11 - Output 3 - Motor
+12 - GND
+13 - GND
+14 - Output 4 - Motor
+15 - Input 4 - Arduino 4
+16 - Arduino 5V
