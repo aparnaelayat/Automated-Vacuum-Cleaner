@@ -1,6 +1,6 @@
 //Source: https://lastminuteengineers.com/l293d-dc-motor-arduino-tutorial/
 // Motor A connections
-int enA = 9;
+int enA = 12;
 int in1 = 8;
 int in2 = 7;
 // Motor B connections
