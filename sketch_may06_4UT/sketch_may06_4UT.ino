@@ -1,5 +1,5 @@
-const int trig_1 = 0; //front
-const int echo_1 = 1; //front
+const int trig_1 = 1; //front
+const int echo_1 = 0; //front
 const int trig_2 = 15; //right when looking from the back
 const int echo_2 = 14; //right
 const int trig_3 = 19; //left
@@ -44,7 +44,6 @@ void loop() {
 //
 //  Serial.print("distance_4: ");
 //  Serial.println(check_dist(trig_4,echo_4));
-
 }
 
 float check_dist(int trig,int echo)
