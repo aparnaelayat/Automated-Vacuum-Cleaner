@@ -1,4 +1,4 @@
-//Pin Declaration- All digital
+//Pin Declaration- digital pins
 const int trig_1 = 22; //front
 const int echo_1 = 23; //front
 const int trig_2 = 24; //right1 when looking from the back- side
@@ -12,7 +12,7 @@ const int echo_6 = 31; //left2- corner
 const int trig_4 = 32; //back
 const int echo_4 = 33; //back
 
-const int buzz = 34; //buzzer that goes off when vacuum is trapped
+const int buzz = 34; //buzzer that goes off when vacuum is trapped from all 4 sides
 
 //Same as in path memorisation code
 const int LM_IN1 = 8; //IN 1
@@ -119,30 +119,34 @@ void loop()
                       distance_3= check_dist(trig_3,echo_3); // Left- side
                       distance_6= check_dist(trig_6,echo_6); // Left- corner
                       
-                      while((distance_2 < 20 or  distance_5 < 20) and (distance_3 < 20 or distance_6 < 20)) // Right and Left Blocked
+                      while((distance_2 < 20 or  distance_5 < 20) and (distance_3 < 20 or distance_6 < 20)) // Move back while both right and left are blocked
                       movement_Inst_Bwd();
 
-                      if (distance_2 > 20 and  distance_5 > 20) // Right not blocked
+                      if (distance_2 > 20 and  distance_5 > 20) // Right is not blocked now
                       {
                         movement_Inst_Rgt();
                         StartTime = millis();
                         do
                         {
-                          movement_Inst_Fwd();//Find this duration and use for the last forward to get back to path    
-                          distance_3= check_dist(trig_3,echo_3); // Checking Left where the initial obstacle is
-                        }while(distance_3 < 20);
+                          movement_Inst_Fwd();//Find this duration and use for the last-forward-command to get back on path.     
+                          distance_3= check_dist(trig_3,echo_3); // Checking Left where the obstacle that was initial in right, now, is
+                          distance_6= check_dist(trig_6,echo_6);
+                        }while(distance_3 < 20 or distance_6 < 20); // Ultrasonic still detects the obstacle that was initially in right (now in left)
+                        //Haven't fully passed the obstacle that was in right initially, obstacle out of range of ultrasonic but might still be in right of vacuum. 
+                        //If so, add forward movement for say 1 second more.  
                               
-                        movement_Inst_Lft();
+                        movement_Inst_Lft(); //Going along obstacle. Obstacle is now in close left of the vacuum. 
                         CurrentTime = millis();
                         ElapsedTime = CurrentTime - StartTime;
                               
                         do
                         {
                           movement_Inst_Fwd();
-                          distance_3= check_dist(trig_3,echo_3); // Checking Left where the initial obstacle is
-                          }while(distance_3 < 20);
+                          distance_3= check_dist(trig_3,echo_3); // Checking left where the initial obstacle is
+                          distance_6= check_dist(trig_6,echo_6);
+                          }while(distance_3 < 20 or distance_6 < 20);
                               
-                          movement_Inst_Lft();
+                          movement_Inst_Lft(); // Going around obstacle. 
                           curr1=millis();
                           reqTime=curr1+ElapsedTime;
                           do
@@ -153,16 +157,17 @@ void loop()
                           movement_Inst_Fwd();      
                       }
                       
-                      if(distance_3>20 &&  distance_6 > 20) // Left not blocked
+                      else if(distance_3>20 and  distance_6 > 20) // Left not blocked now
                       {
                         movement_Inst_Lft();
                         StartTime = millis();
                         do
                         {
                           movement_Inst_Fwd();//Find this duration and use for the last forward to get back to path    
-                          distance_2= check_dist(trig_2,echo_2); // Checking Left where the initial obstacle is
+                          distance_2= check_dist(trig_2,echo_2); // Checking Right where the initial obstacle is
+                          distance_5= check_dist(trig_5,echo_5);
                         }
-                        while(distance_2 < 20);
+                        while(distance_2 < 20 or distance_5 < 20);
                         movement_Inst_Rgt();
                         CurrentTime = millis();
                         ElapsedTime = CurrentTime - StartTime;
@@ -170,8 +175,9 @@ void loop()
                         {
                           movement_Inst_Fwd();
                           distance_2= check_dist(trig_2,echo_2); // Checking Left where the initial obstacle is
+                          distance_5= check_dist(trig_5,echo_5);
                         }
-                        while(distance_2 < 20);
+                        while(distance_2 < 20 or distance_5 < 20);
                         movement_Inst_Rgt();
                         curr1=millis();
                         reqTime=curr1+ElapsedTime;
@@ -186,16 +192,17 @@ void loop()
                      
                     }
           }
-          else
+          else //Front and right are blocked but left is not blocked
           {
             movement_Inst_Lft();
             StartTime = millis();
             do
             {
               movement_Inst_Fwd();//Find this duration and use for the last forward to get back to path    
-              distance_2= check_dist(trig_2,echo_2); // Checking Left where the initial obstacle is
+              distance_2= check_dist(trig_2,echo_2); // Checking Right where the initial obstacle is
+              distance_5= check_dist(trig_5,echo_5);
             }
-            while(distance_2 < 20);
+            while(distance_2 < 20 or distance_5 < 20); 
             movement_Inst_Rgt();
             CurrentTime = millis();
             ElapsedTime = CurrentTime - StartTime;
@@ -203,8 +210,9 @@ void loop()
             {
               movement_Inst_Fwd();
               distance_2= check_dist(trig_2,echo_2); // Checking Left where the initial obstacle is
+              distance_5= check_dist(trig_5,echo_5);
             }
-            while(distance_2 < 20);
+            while(distance_2 < 20 or distance_5 < 20);
             movement_Inst_Rgt();
             curr1=millis();
             reqTime=curr1+ElapsedTime;
@@ -217,15 +225,16 @@ void loop()
             movement_Inst_Fwd();
           }
     }           
-    else // Go right
+    else // Front blocked but right is not blocked
     {
       movement_Inst_Rgt();
       StartTime = millis();
       do
       {
-        movement_Inst_Fwd();//Find this duration and use for the last forward to get back to path    
+        movement_Inst_Fwd();//Find this duration and use for the last forward to get back on path    
         distance_3= check_dist(trig_3,echo_3); // Checking Left where the initial obstacle is
-      }while(distance_3 < 20);
+        distance_6= check_dist(trig_6,echo_6);
+      }while(distance_3 < 20 or distance_6 < 20);
       
       movement_Inst_Lft();
       CurrentTime = millis();
@@ -235,7 +244,8 @@ void loop()
       {
         movement_Inst_Fwd();
         distance_3= check_dist(trig_3,echo_3); // Checking Left where the initial obstacle is
-      }while(distance_3 < 20);
+        distance_6= check_dist(trig_6,echo_6);
+      }while(distance_3 < 20 or distance_6 < 20);
       
       movement_Inst_Lft();
       curr1=millis();
@@ -247,11 +257,9 @@ void loop()
       
       movement_Inst_Rgt();
       movement_Inst_Fwd();
+    }
   }
-
-  
-}
-else                    // Go forward
+  else                    // No obstacle in front so go forward
       movement_Inst_Fwd();
 }
 
@@ -266,6 +274,7 @@ double check_dist(int trig,int echo)
   return distance;
 }
 
+//Same as in path memorisation code
 void movement_Inst_Fwd() {
   // forward movement instructions
   Serial.println("Going_Forward");
@@ -298,7 +307,7 @@ void movement_Inst_Rgt() {
   digitalWrite(LM_IN2, LOW);
   digitalWrite(RM_IN3, LOW);
   digitalWrite(RM_IN4, LOW);
-  delay(1600);// default delay for smooth rotation of about 45 degrees is 825.
+  delay(1600);// default delay for smooth rotation of about 45 degrees is 825. Here we need 90 degree turns. 
   digitalWrite(LM_IN1, LOW);
   digitalWrite(LM_IN2, LOW);
   digitalWrite(RM_IN3, LOW);
