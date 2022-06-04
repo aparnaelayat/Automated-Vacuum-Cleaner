@@ -28,8 +28,8 @@ const int enB = 3; //Left motor, to pin 9 of L293D (EN B)- Needs to be PWM
 /*
    ********************IR Receiver**********************
 */
-const int RECV_PIN = 10;// Pin to which left pin (pin 1) of IR reciever is connected. Ground of IR is the central pin and the Vcc (5V) is the right pin. 
-
+const int RECV_PIN = 6;// Pin to which left pin (pin 1) of IR reciever is connected. Ground of IR is the central pin and the Vcc (5V) is the right pin. 
+int relay= 2;
 /*
  ************Arduino Reset Pin**************
  */
@@ -91,6 +91,9 @@ void setup() {
   pinMode(enA, OUTPUT);
   pinMode(enB, OUTPUT);
   pinMode(RECV_PIN, INPUT);
+  pinMode(relay, OUTPUT);
+
+  digitalWrite(relay,HIGH);
   
   // start serial communication
   Serial.begin(9600);
@@ -142,6 +145,7 @@ void check_Inst(long int value)
       delay(10);
       break;
     case RPEAT:
+      digitalWrite(relay,LOW);
       go_In_Seq();
       delay(10);
       break;
@@ -154,6 +158,7 @@ void check_Inst(long int value)
       delay(10);
       break;  
     case PLAYEPROM:
+      digitalWrite(relay,LOW);
       Read_Permt_Mem();
       delay(10);
       break;   
@@ -170,6 +175,8 @@ void check_Inst(long int value)
 
 void go_Forward() 
 {
+  analogWrite(enA, 243);//Right motor
+  analogWrite(enB, 220);//Left motor
   movement_Inst_Fwd();
   current_Time0 = millis();
   int i = seq_Array[(seq - 1)];
@@ -203,6 +210,8 @@ void go_Forward()
 
 void go_Left() 
 {
+  analogWrite(enA, 243);//Right motor
+  analogWrite(enB, 220);//Left motor
   movement_Inst_Lft();
   current_Time1 = millis();
   int i = seq_Array[(seq - 1)];
@@ -234,6 +243,8 @@ void go_Left()
 
 void go_Right() 
 {
+  analogWrite(enA, 243);//Right motor
+  analogWrite(enB, 220);//Left motor
   movement_Inst_Rgt();
   current_Time2 = millis();
   int i = seq_Array[(seq - 1)];
@@ -265,6 +276,8 @@ void go_Right()
 
 void go_Backward() 
 {
+  analogWrite(enA, 243);//Right motor
+  analogWrite(enB, 220);//Left motor
   movement_Inst_Bwd();
   current_Time3 = millis();
   int i = seq_Array[(seq - 1)];
@@ -296,6 +309,8 @@ void go_Backward()
 
 void go_Stop() 
 {
+  analogWrite(enA, 243);//Right motor
+  analogWrite(enB, 220);//Left motor
   movement_Inst_Stp();
   current_Time4 = millis();
   int i = seq_Array[(seq - 1)];
@@ -326,7 +341,9 @@ void go_Stop()
 }
 
 void go_In_Seq(void) 
-{
+{ 
+  analogWrite(enA, 243);//Right motor
+  analogWrite(enB, 220);//Left motor
   Serial.println("Repeating sequence");
   value = 0;
   for (int i = 0; i < (seq + 1); i++) 
@@ -400,6 +417,8 @@ void del_From_Local_Mem()
 void write_To_Permt_Mem()
 {
   // total number of movement is stored in a random address i.e, 100
+  analogWrite(enA, 243);//Right motor
+  analogWrite(enB, 220);//Left motor
   Serial.println("Saving Path");
   EEPROM.write(100,seq);
     int i;
@@ -454,6 +473,8 @@ void write_To_Permt_Mem()
 void Read_Permt_Mem()
 {
   // Read from permanent memory
+  analogWrite(enA, 243);//Right motor
+  analogWrite(enB, 220);//Left motor
   byte x = EEPROM.read(100);
   Serial.println("Repeating stored sequence from memory"); 
 
@@ -489,6 +510,7 @@ void go_Forward_Seq(int j)
   //go in forward direction sequence
   movement_Inst_Fwd();
   delay(total_Fwd_Time[j]);
+  delay(1000);
 }
 
 void go_Left_Seq(int k) 
@@ -510,6 +532,7 @@ void go_Backward_Seq(int m)
   //go in backward direction sequence
   movement_Inst_Bwd();
   delay(total_Bwd_Time[m]);
+  delay(1000);
 }
 
 void go_Stop_Seq(int n) 
@@ -517,6 +540,7 @@ void go_Stop_Seq(int n)
   //go in Stop sequence
   movement_Inst_Stp();
   delay(total_Stp_Time[n]);
+  delay(1000);
 }
 
 /*********************************************************************************************
@@ -540,12 +564,12 @@ void movement_Inst_Lft(void)
   digitalWrite(LM_IN2, LOW);
   digitalWrite(RM_IN3, HIGH);
   digitalWrite(RM_IN4, LOW);
-  delay(800);// default delay for smooth rotation of about 23 degrees is 500.
+  delay(1025);// default delay for smooth rotation of about 23 degrees is 500.
   digitalWrite(LM_IN1, LOW);
   digitalWrite(LM_IN2, LOW);
   digitalWrite(RM_IN3, LOW);
   digitalWrite(RM_IN4, LOW);
-  delay(800);
+  delay(1025);
   // NOTE: The minimum delay for RIGHT/LEFT movement is 1S(inluding .5s ON time & .5s OFF time). Hence subtract 1s before repeating this movement
 }
 
@@ -557,12 +581,12 @@ void movement_Inst_Rgt(void)
   digitalWrite(LM_IN2, LOW);
   digitalWrite(RM_IN3, LOW);
   digitalWrite(RM_IN4, LOW);
-  delay(825);// default delay for smooth rotation of about 45 degrees is 825.
+  delay(1025);// default delay for smooth rotation of about 45 degrees is 825.
   digitalWrite(LM_IN1, LOW);
   digitalWrite(LM_IN2, LOW);
   digitalWrite(RM_IN3, LOW);
   digitalWrite(RM_IN4, LOW);
-  delay(825);
+  delay(1025);
   // NOTE: The minimum delay for RIGHT/LEFT movement is 1S(inluding .5s ON time & .5s OFF time). Hence subtract 1s before repeating this movement 
 
 }

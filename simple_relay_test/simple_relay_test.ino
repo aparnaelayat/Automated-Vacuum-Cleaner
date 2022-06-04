@@ -1,8 +1,9 @@
+
 /* 
 https://create.arduino.cc/projecthub/techvaler/basic-setup-for-arduino-with-relay-e162d5
  */
  
-int Relaypin= A1; // Define input pin for relay
+int Relaypin= 2; // Define input pin for relay
 
 void setup() {
   // put your setup code here, to run once:
@@ -14,5 +15,5 @@ void loop() {
 digitalWrite(Relaypin, HIGH); // Sends high signal 
 delay(1000); // Waits for 1 second
 digitalWrite(Relaypin, LOW); // Makes the signal low
-delay(1000); // Waits for 1 second
+delay(300000); // Waits for 1 second
 }

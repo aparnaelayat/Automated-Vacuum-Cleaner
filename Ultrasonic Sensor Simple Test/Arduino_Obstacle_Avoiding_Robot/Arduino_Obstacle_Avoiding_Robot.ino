@@ -1,5 +1,5 @@
-const int trig_1 = 6;
-const int echo_1 = 11;
+const int trig_1 = 2;
+const int echo_1 = 3;
 const int LM_IN1 = 8; //IN 1
 const int LM_IN2 = 7; //IN2
 const int RM_IN3 = 5; //IN 3
