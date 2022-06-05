@@ -1,6 +1,6 @@
 #include <IRremote.h>// IR remote library
 #include <EEPROM.h>// EEPROM pre-installed library
-#include <Wire.h> // Header for Gyroscope
+#include <Wire.h> // Header for Gyroscpe
 //Pin 9 of mega does not work. Use pin 12 instead. 
 
 /*
@@ -646,6 +646,7 @@ void movement_Inst_Fwd(void)
   digitalWrite(LM_IN2, LOW);
   digitalWrite(RM_IN3, HIGH);
   digitalWrite(RM_IN4, LOW);
+  orientation();
 }
 
 void movement_Inst_Lft(void) 
@@ -691,6 +692,7 @@ void movement_Inst_Bwd(void)
   digitalWrite(LM_IN2, HIGH);
   digitalWrite(RM_IN3, LOW);
   digitalWrite(RM_IN4, HIGH);
+  orientation();
 }
 
 void movement_Inst_Stp(void) 
@@ -928,6 +930,74 @@ void Obstacle_Detection()
 /*********************************************************************************************
           Gyroscope helper codes
 **********************************************************************************************/
+orientatino(){
+  read_mpu_6050_data();   
+ //Subtract the offset values from the raw gyro values
+  gyro_x -= gyro_x_cal;                                                
+  gyro_y -= gyro_y_cal;                                                
+  gyro_z -= gyro_z_cal;                                                
+//Gyro angle calculations . Note 0.0000611 = 1 / (250Hz x 65.5) // 250 hz is the frequency of the offset calculation for loop 
+  angle_pitch += gyro_x * 0.0000611;                                   
+  angle_roll += gyro_y * 0.0000611;   
+  // 0.0000611 is converted into degrees by multiplying by pi/180                                        
+  angle_pitch += angle_roll * sin(gyro_z * 0.000001066);        
+  angle_roll -= angle_pitch * sin(gyro_z * 0.000001066);               
+  //Accelerometer angle calculations
+  acc_total_vector = sqrt((acc_x*acc_x)+(acc_y*acc_y)+(acc_z*acc_z));  
+  //57.296 = 1 / (3.142 / 180) The Arduino sin function is in radians
+  angle_pitch_acc = asin((float)acc_y/acc_total_vector)* 57.296;      
+  angle_roll_acc = asin((float)acc_x/acc_total_vector)* -57.296; 
+  Serial.print("Pitch:");Serial.print(angle_pitch_acc);
+  Serial.print(" Roll:");Serial.println(angle_roll_acc);
+//  delay(1000); 
+// get the value of the angle_pitch_acc by keeping the device in the spirit level
+  angle_pitch_acc -= 1.50;   //needs to be edited  (done)                                      
+  angle_roll_acc -= -2.96;   //needs to be edited  (done)
+// angle_pitch = yawed drift calculated with gyro values, angle_pitch_acc = yawed drift calculated via accelerometer values                          
+if(set_gyro_angles){                                               
+    angle_pitch = angle_pitch * 0.9996 + angle_pitch_acc * 0.0004;     // this is when the sensor has already started moving so the gyro pitch angle is corrected using acceleration pitch angle 
+    angle_roll = angle_roll * 0.9996 + angle_roll_acc * 0.0004;        
+  }
+  else{                                                               
+    angle_pitch = angle_pitch_acc;                                    // this is done at the first start here the accelerometer pitch angle is copied to gyro pitch angle  
+    angle_roll = angle_roll_acc;                                       
+    set_gyro_angles = true;                                           
+  }
+  //To dampen the pitch and roll angles a complementary filter is used
+  angle_pitch_output = angle_pitch_output * 0.9 + angle_pitch * 0.1;  //adding raw pitch value to output pitch value
+  angle_roll_output = angle_roll_output * 0.9 + angle_roll * 0.1;      
+  Serial.print(" | Angle  = "); Serial.println(angle_pitch_output);
+ while(micros() - loop_timer < 4000);                            
+ loop_timer = micros();//Reset the loop timer
+if(angle_pitch_output<=2 && angle_pitch_output>=-2)
+  {
+    digitalWrite(LM_IN1, LOW);
+    digitalWrite(LM_IN2, HIGH);//FWD
+    digitalWrite(RM_IN3, HIGH);
+    digitalWrite(RM_IN4, LOW);
+  }
+  else if(angle_pitch_output>2)
+  {
+    digitalWrite(LM_IN1, LOW);
+    digitalWrite(LM_IN2, HIGH);//LFT
+    digitalWrite(RM_IN3, LOW);
+    digitalWrite(RM_IN4, HIGH);
+  }
+   else if(angle_pitch_output<-2)
+  {
+   digitalWrite(LM_IN1, HIGH);
+    digitalWrite(LM_IN2, LOW);//RT
+    digitalWrite(RM_IN3, HIGH);
+    digitalWrite(RM_IN4, LOW);
+  }
+  else
+  {
+    digitalWrite(LM_IN1, LOW);
+    digitalWrite(LM_IN2, LOW);//STOP
+    digitalWrite(RM_IN3, LOW);
+    digitalWrite(RM_IN4, LOW);
+  }
+}
 void setup_mpu_6050_registers()
 {
   //Activate the MPU-6050
