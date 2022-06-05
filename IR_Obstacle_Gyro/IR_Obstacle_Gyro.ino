@@ -1,6 +1,6 @@
 #include <IRremote.h>// IR remote library
 #include <EEPROM.h>// EEPROM pre-installed library
-#include <Wire.h> // Header for Gyroscpe
+#include <Wire.h> // Header for Gyroscope
 //Pin 9 of mega does not work. Use pin 12 instead. 
 
 /*
