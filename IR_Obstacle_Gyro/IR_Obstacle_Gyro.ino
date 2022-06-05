@@ -1,6 +1,6 @@
 #include <IRremote.h>// IR remote library
 #include <EEPROM.h>// EEPROM pre-installed library
-
+#include <Wire.h> // Header for Gyroscpe
 //Pin 9 of mega does not work. Use pin 12 instead. 
 
 /*
@@ -116,7 +116,54 @@ void movement_Inst_Lft_Obstacle();
 void Obstacle_Detection();
 //rest are already defined above
 
+//Declaring global variables for gyroscope
+
+int gyro_x, gyro_y, gyro_z;
+long gyro_x_cal, gyro_y_cal, gyro_z_cal;
+boolean set_gyro_angles;
+long acc_x, acc_y, acc_z, acc_total_vector;
+float angle_roll_acc, angle_pitch_acc;
+float angle_pitch, angle_roll;
+int angle_pitch_buffer, angle_roll_buffer;
+float angle_pitch_output, angle_roll_output;
+long loop_timer;
+int temp;
+// gyro values are static measurements and pitch, roll and yaw are rate mesurements 
+//they come into action when the device drifts
+
+//Fuctions for gyroscope
+void read_mpu_6050_data();
+void setup_mpu_6050_registers();
+
 void setup() {
+  // start serial communication
+  Serial.begin(9600);
+  // In case the interrupt driver crashes on setup, give a clue to the user what's going on.
+  //Serial.println("Enabling IRin");
+  irrecv.enableIRIn(); // Start the receiver
+  //Serial.println("Enabled IRin");
+  Serial.println("Commands:\n 2 to move forward\n 4 to move left\n 6 to move right\n 8 to move backward\n 5 to Stop\n 0 to repeat from temporary  memory \n DISPLAY to save path\n Menu to repeat saved path from memory\n Power to Delete stored path,\n Mute to Reset the Arduino");
+  
+  //Setup for Gyroscope
+   Wire.begin();                                                        
+  setup_mpu_6050_registers();                                          
+  for (int cal_int = 0; cal_int < 1000 ; cal_int ++)//summing the first 1000 values to create a offset
+  {                  
+    read_mpu_6050_data();                                             
+    gyro_x_cal += gyro_x;                                              
+    gyro_y_cal += gyro_y;                                              
+    gyro_z_cal += gyro_z;                                             
+    delay(3);           // 3us delay + 1us for total calculation                                               
+  }
+   // divide by 1000 to get avarage offset
+  gyro_x_cal /= 1000;                                                 
+  gyro_y_cal /= 1000;                                                 
+  gyro_z_cal /= 1000;                                                 
+  
+  loop_timer = micros();   //getting the instant when the serial commmunication begins 
+//  Serial.println("gyro_x: ");Serial.print(gyro_x);Serial.print(" | ");Serial.print("gyro_y: ")
+//;Serial.print(gyro_y);Serial.print(" | ");Serial.print("gyro_z: ");Serial.print(gyro_z);Serial.print(" | ");                                         
+
 
   //Ultrasonic sensor pins setup
   
@@ -137,14 +184,6 @@ void setup() {
   pinMode(enA, OUTPUT);
   pinMode(enB, OUTPUT);
   pinMode(RECV_PIN, INPUT);
-  
-  // start serial communication
-  Serial.begin(9600);
-  // In case the interrupt driver crashes on setup, give a clue to the user what's going on.
-  //Serial.println("Enabling IRin");
-  irrecv.enableIRIn(); // Start the receiver
-  //Serial.println("Enabled IRin");
-  Serial.println("Commands:\n 2 to move forward\n 4 to move left\n 6 to move right\n 8 to move backward\n 5 to Stop\n 0 to repeat from temporary  memory \n DISPLAY to save path\n Menu to repeat saved path from memory\n Power to Delete stored path,\n Mute to Reset the Arduino");
 }
 
 void loop() {
@@ -885,4 +924,42 @@ void Obstacle_Detection()
   }
   else                    // No obstacle in front so go forward
       movement_Inst_Fwd();
+}
+/*********************************************************************************************
+          Gyroscope helper codes
+**********************************************************************************************/
+void setup_mpu_6050_registers()
+{
+  //Activate the MPU-6050
+  Wire.beginTransmission(0x68);                                       
+  Wire.write(0x6B);                                                   
+  Wire.write(0x00);                                                    
+  Wire.endTransmission();                                             
+  //Configure the accelerometer (+/-8g)
+  Wire.beginTransmission(0x68);                                       
+  Wire.write(0x1C);                                                    
+  Wire.write(0x10);                                                    
+  Wire.endTransmission();                                             
+  //Configure the gyro (500dps full scale)
+  Wire.beginTransmission(0x68);                                        
+  Wire.write(0x1B);                                              
+  Wire.write(0x08);                                                    
+  Wire.endTransmission();                                             
+}
+
+void read_mpu_6050_data()
+{                                             
+  Wire.beginTransmission(0x68);                                        
+  Wire.write(0x3B);                                                    
+  Wire.endTransmission();                                             
+  Wire.requestFrom(0x68,14);                                         
+  while(Wire.available() < 14);                                        
+  acc_x = Wire.read()<<8|Wire.read();                                  
+  acc_y = Wire.read()<<8|Wire.read();                                  
+  acc_z = Wire.read()<<8|Wire.read();                                  
+  temp = Wire.read()<<8|Wire.read();                                   
+  gyro_x = Wire.read()<<8|Wire.read();                                 
+  gyro_y = Wire.read()<<8|Wire.read();                                 
+  gyro_z = Wire.read()<<8|Wire.read();  
+//  Serial.println("gyro_x: ");Serial.print(gyro_x);Serial.print(" | ");Serial.print("gyro_y: ");Serial.print(gyro_y);Serial.print(" | ");Serial.print("gyro_z: ");Serial.print(gyro_z);Serial.print(" | ");                            
 }
